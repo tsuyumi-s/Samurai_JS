@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>タイピングアプリ</title>
+    <style>
+    
+    body {
+    font-size: 6em; 
+    text-align: center;
+    }
+
+    #count {
+    margin: 0;
+    font-weight: bold;
+    color: #888;
+    }
+
+    #wrap {
+    margin-top: 20px;
+    padding: 20px 10px;
+    background-color: #666;
+    font-weight: bold;
+    color: #fff;
+    }
+
+    span {
+        transition: all 300ms 0s ease;
+    }
+
+    .add-color{
+        font-size: 0.5em;
+        color: #666;
+    }
+
+    
+    
+    </style>
+</head>
+<body>
+    <p id="count">60</p>
+    <div id="wrap">
+        <p id="text"></p>
+    </div>
+    <button id="start">スタート</button>
+
+    <script>
+    const wrap = document.getElementById("wrap");
+    const start = document.getElementById("start");
+
+    const textlists = [
+    'Hello World',
+    'This is my App',
+    'How are you?',
+    'What day is today?',
+    'Chrome Firefox Edge Safari',
+    'machine learning',
+    'Information Technology',
+    ];//配列で文章を管理
+    let checkTexts = [];//新しい配列を用意
+
+    const createText = ()=> {
+        const p = document.getElementById("text"); //textタグのあるHTML要素を取得
+        const rnd = Math.floor(Math.random()*textlists.length);//textlistsをかけることで7つの文章からランダムに取得
+        p.textContent = "";//取得時空の状態にリセットされて文章が1つずつ取得される
+
+        checkTexts =　textlists[rnd].split('').map(value => { //表示されるテキストをchecktexts配列に格納する
+            const span = document.createElement('span');//spanで文字が1つずつバラバラな構造になる
+            span.textContent = value;//spanのspanの値を取得する
+            p.appendChild(span);
+
+            return span; // 1文字ずつcheckTextsに格納していく
+        })
+    };
+
+    createText();
+     // スコアの初期値を設定する
+    let score = 0;
+
+    const keyDown = e => {
+        // 背景色のデフォルト値を設定する
+        wrap.style.backgroundColor = '#666';
+
+        if(e.key === checkTexts[0].textContent){
+            checkTexts[0].className = 'add-color'; // add-colorクラスを付与する
+
+            checkTexts.shift();// 配列から1文字を削除する
+            score++; // 正しい入力の時だけスコアを加算する
+            if(!checkTexts.length) createText();// 配列の中身が0になった時点で最後まで入力したら新しいテキストを用意する
+
+        } else if(e.key === 'shift') {
+        wrap.style.backgroundColor = '#666';
+
+        } else {
+        wrap.style.backgroundColor = 'red';
+        }
+    };
+
+    const rankCheck = score => {
+        let text = "";
+
+        if(score < 100) {
+        text = `あなたのランクはCです。\nBランクまであと${100 - score}文字です。`;
+        } else if(score < 200) {
+        text = `あなたのランクはBです。\nAランクまであと${200 - score}文字です。`;    
+        } else if(score < 300) {
+        text = `あなたのランクはAです。\nSランクまであと${300 - score}文字です。`;    
+        } else if(score >= 300) {
+        text = `あなたのランクはSです。\nおめでとうございます！`;    
+        }
+        // 生成したメッセージと一緒に文字列を返す
+        return `${score}文字打てました！\n${text}\n【OK】リトライ／【キャンセル】終了`;
+    };
+
+    const gameOver = id => {
+        clearInterval(id);// タイマーをストップする
+        const result = confirm(rankCheck(score));
+        if(result)window.location.reload();// OKボタンをクリックされたらリロードする
+    };
+    const timer = () => {
+        let time = 60;// タイマーの初期値を設定（60秒）
+        const count = document.getElementById("count");//count要素を取得する
+        const id = setInterval(() => { 
+            if(time <= 0)gameOver(id);// カウントが0になったらタイマーのIDをgameOver()に渡す
+            count.textContent = time--;// タイマーの表示を1ずつ減らしていく 増やすならtime++
+        },1000);// 1秒ごとに実行する処理を書く 1000ミリ秒 => 1秒
+    };
+    
+    start.addEventListener("click",()=> {
+        timer();
+        createText();
+        start.style.display = "none";// 「スタート」ボタンを非表示にする処理を追記
+        document.addEventListener('keydown', keyDown);
+    });//イベントを起こしたいターゲット.addeventlistener(イベント名、関数)
+    </script>
+</body>
+</html>
